@@ -1,17 +1,29 @@
 // ***********************************************************
-// This example support/e2e.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
+// Configurações globais do Cypress
+// Este arquivo roda antes de todos os testes
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
+
+// Ignora erros de "uncaught exception" que não são do teste
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // Ignorar erros de logo.jpg não encontrado
+  if (err.message && err.message.includes('logo.jpg')) {
+    return false;
+  }
+  return true;
+});
+
+// Comando customizado: limpar dados antes de cada teste
+Cypress.Commands.add('limparDados', () => {
+  cy.window().then((win) => {
+    // Limpa localStorage
+    win.localStorage.clear();
+
+    // Limpa IndexedDB (se existir)
+    if (win.indexedDB && win.indexedDB.deleteDatabase) {
+      win.indexedDB.deleteDatabase('qa_evid_db');
+    }
+  });
+  cy.reload();
+});

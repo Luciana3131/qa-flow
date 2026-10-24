@@ -6730,13 +6730,19 @@ initDB().then(function(){
             data: dataBR, dataCriacao: dataBR, dataISO: agora
           };
 
-          if(idx === ''){ casos.push(caso); }
-          else {
-            caso.dataCriacao = casos[parseInt(idx)].dataCriacao || casos[parseInt(idx)].data;
-            caso.dataISO = casos[parseInt(idx)].dataISO || agora;
-            caso.dataAtualizacao = dataBR;
-            casos[parseInt(idx)] = caso;
-          }
+         if(idx === ''){ casos.push(caso); }
+            else {
+            var casoOriginal = casos[parseInt(idx)];
+            if(casoOriginal){
+    caso.dataCriacao = casoOriginal.dataCriacao || casoOriginal.data || dataBR;
+    caso.dataISO = casoOriginal.dataISO || agora;
+    caso.dataAtualizacao = dataBR;
+  } else {
+    caso.dataCriacao = dataBR;
+    caso.dataISO = agora;
+  }
+  casos[parseInt(idx)] = caso;
+}
 
           salvar();
           render();
