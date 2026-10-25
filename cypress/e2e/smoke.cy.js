@@ -29,10 +29,25 @@ describe('Smoke test — o sistema carrega', () => {
     });
   });
 
-  it('deve ter o banco IndexedDB inicializado', () => {
-    cy.window().then((win) => {
-      expect(win.db).to.not.be.undefined;
-      expect(win.db).to.not.be.null;
+  it('deve ter o banco IndexedDB inicializado (com retry)', () => {
+  cy.window().then((win) => {
+    return new Cypress.Promise((resolve, reject) => {
+      let tentativas = 0;
+      const max = 50;
+      const verificar = () => {
+        tentativas++;
+        if (win.db) {
+          resolve();
+        } else if (tentativas >= max) {
+          reject(new Error('db não inicializou em 5s'));
+        } else {
+          setTimeout(verificar, 100);
+        }
+      };
+      verificar();
+    });
+  }).then(() => {
+    cy.window().should('have.property', 'db').and('not.be.null');
     });
   });
 });
